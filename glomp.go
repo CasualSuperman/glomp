@@ -7,8 +7,8 @@ import (
 	"os"
 )
 
-var addr *string = flag.String("p", "Port", ":6060")
-var pass = flag.String("pass", "Password for connecting to mpd.", "")
+var addr = flag.String("p", ":6060", "Port used by mpd.")
+var pass = flag.String("pass", "", "Password for connecting to mpd.")
 
 func main() {
 	flag.Parse()
