@@ -1,3 +1,3 @@
 Glomp
 =====
-Go's light, open music player
+A light, open music player written in Go.
