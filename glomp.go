@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"flag"
-	"json"
+	"encoding/json"
 	mpd "github.com/jteeuwen/go-pkg-mpd"
 	"os"
 )
