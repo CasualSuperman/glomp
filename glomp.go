@@ -7,7 +7,6 @@ import (
 	mpd "github.com/jteeuwen/go-pkg-mpd"
 	"os"
 	"os/user"
-	fp "path/filepath"
 )
 
 var config map[string]string
@@ -23,24 +22,45 @@ func main() {
 		os.Exit(1)
 	}
 	status, err := client.Status()
-	if status.State == mpd.Playing {
+	if status.State != mpd.Stopped {
 		song, err := client.Current()
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			fmt.Printf("Now Playing: %s - %s from %s\n", song.S("Title"), song.S("Artist"), song.S("Album"))
+			fmt.Printf("Now Playing: ")
+
+			file := song.S("file")
+			title := song.S("Title")
+			artist := song.S("Artist")
+			album := song.S("Album")
+
+			if title == "" {
+				fmt.Print(file)
+			} else {
+				fmt.Print(title)
+				if artist != "" {
+					fmt.Printf(" - %s", artist)
+				}
+				if album != "" {
+					fmt.Printf(" from %s", album)
+				}
+			}
+
+			if status.State == mpd.Paused {
+				fmt.Print(" [Paused]")
+			}
+			fmt.Println()
 		}
 	} else {
 		fmt.Println("Nothing playing.")
 	}
-
 }
 
 func getConfig() {
 	usr, _ := user.LookupId(os.Getuid())
 	var conf = usr.HomeDir + "/.config/glomp.conf"
 
-	err = json.Unmarshal([]byte(defaults), &config)
+	err := json.Unmarshal([]byte(defaults), &config)
 	if err != nil {
 		fmt.Println("Warning: default settings corrupted", err)
 	}
