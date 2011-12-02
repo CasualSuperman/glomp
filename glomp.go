@@ -10,50 +10,20 @@ import (
 )
 
 var config map[string]string
+var client Conn
 
 func main() {
 	flag.Parse()
 	config = make(map[string]string)
 	getConfig()
 
-	client, err := mpd.Dial(config["address"]+":"+config["port"], config["pass"])
+	c, err := mpd.Dial(config["address"]+":"+config["port"], config["pass"])
 	if err != nil {
 		fmt.Printf("Could not connect to mpd instance on %s:%s\n", config["address"], config["port"])
 		os.Exit(1)
 	}
-	status, err := client.Status()
-	if status.State != mpd.Stopped {
-		song, err := client.Current()
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			fmt.Printf("Now Playing: ")
-
-			file := song.S("file")
-			title := song.S("Title")
-			artist := song.S("Artist")
-			album := song.S("Album")
-
-			if title == "" {
-				fmt.Print(file)
-			} else {
-				fmt.Print(title)
-				if artist != "" {
-					fmt.Printf(" - %s", artist)
-				}
-				if album != "" {
-					fmt.Printf(" from %s", album)
-				}
-			}
-
-			if status.State == mpd.Paused {
-				fmt.Print(" [Paused]")
-			}
-			fmt.Println()
-		}
-	} else {
-		fmt.Println("Nothing playing.")
-	}
+	client = NewConn(c)
+	status()
 }
 
 func getConfig() {
