@@ -19,7 +19,7 @@ func main() {
 
 	client, err := mpd.Dial(config["address"]+":"+config["port"], config["pass"])
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Could not connect to mpd instance on %s:%s\n", config["address"], config["port"])
 		os.Exit(1)
 	}
 	status, err := client.Status()
