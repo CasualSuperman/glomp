@@ -40,26 +40,15 @@ func getConfig() {
 	usr, _ := user.LookupId(os.Getuid())
 	var conf = usr.HomeDir + "/.config/glomp.conf"
 
-	if len(flag.Args()) == 1 {
-		conf = flag.Args()[0]
-	}
-
-	confs, err := fp.Glob(conf)
-	if len(confs) == 0 || err != nil {
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			fmt.Println("Configuration file could not be found at %s.", conf)
-		}
-		os.Exit(1)
-	}
-
 	err = json.Unmarshal([]byte(defaults), &config)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Warning: default settings corrupted", err)
 	}
 
-	file, _ := os.Open(confs[0])
+	file, err := os.Open(conf)
+	if err != nil {
+		fmt.Println("Configuration file could not be found. Continuing with default settings...")
+	}
 	decoder := json.NewDecoder(file)
 	decoder.Decode(&config)
 }
