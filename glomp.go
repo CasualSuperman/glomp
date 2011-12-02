@@ -1,13 +1,13 @@
 package main
 
 import (
-	fp "path/filepath"
-	"fmt"
-	"flag"
 	"encoding/json"
+	"flag"
+	"fmt"
 	mpd "github.com/jteeuwen/go-pkg-mpd"
-	"os/user"
 	"os"
+	"os/user"
+	fp "path/filepath"
 )
 
 var config map[string]string
@@ -17,7 +17,7 @@ func main() {
 	config = make(map[string]string)
 	getConfig()
 
-	client, err := mpd.Dial(config["address"] + ":" + config["port"], config["pass"])
+	client, err := mpd.Dial(config["address"]+":"+config["port"], config["pass"])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -28,8 +28,10 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			fmt.Printf("Now Playing:\n%s\nby %s\nfrom %s\n", song.S("Title"), song.S("Artist"), song.S("Album"))
+			fmt.Printf("Now Playing: %s - %s from %s\n", song.S("Title"), song.S("Artist"), song.S("Album"))
 		}
+	} else {
+		fmt.Println("Nothing playing.")
 	}
 
 }
