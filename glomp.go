@@ -1,29 +1,56 @@
 package main
 
 import (
+	fp "path/filepath"
 	"fmt"
 	"flag"
 	"encoding/json"
 	mpd "github.com/jteeuwen/go-pkg-mpd"
+	"os/user"
 	"os"
 )
 
-var file = flag.String("c", "$HOME/.config/glomp.conf", "Configuration file.")
-var addr = flag.String("a", "127.0.0.1", "IP for mpd.")
-var port = flag.String("p", ":6615", "Port used by mpd.")
-var pass = flag.String("pass", "", "Password for connecting to mpd.")
+var config map[string]string
 
 func main() {
 	flag.Parse()
-	file, err := os.Open(os.ShellExpand(*file))
-	if err != nil {
-		panic(err)
-	}
-	json.NewDecoder(file)
-	client, err := mpd.Dial(*addr + *port, *pass)
+	config = make(map[string]string)
+	getConfig()
+	fmt.Println(config)
+
+	client, err := mpd.Dial(config["address"] + ":" + config["port"], config["pass"])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	fmt.Println(client.Status())
+
+}
+
+func getConfig() {
+	usr, _ := user.LookupId(os.Getuid())
+	var conf = usr.HomeDir + "/.config/glomp.conf"
+
+	if len(flag.Args()) == 1 {
+		conf = flag.Args()[0]
+	}
+
+	confs, err := fp.Glob(conf)
+	if len(confs) == 0 || err != nil {
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println("Configuration file could not be found at %s.", conf)
+		}
+		os.Exit(1)
+	}
+
+	err = json.Unmarshal([]byte(defaults), &config)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	file, _ := os.Open(confs[0])
+	decoder := json.NewDecoder(file)
+	decoder.Decode(&config)
 }
