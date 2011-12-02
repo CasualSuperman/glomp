@@ -17,10 +17,10 @@ func status() {
 		} else {
 			fmt.Printf("Now Playing: ")
 
-			file := song.S("file")
-			title := song.S("Title")
-			artist := song.S("Artist")
-			album := song.S("Album")
+			file := song["file"]
+			title := song["Title"]
+			artist := song["Artist"]
+			album := song["Album"]
 
 			if title == "" {
 				fmt.Print(file)
