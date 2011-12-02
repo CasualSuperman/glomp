@@ -16,14 +16,21 @@ func main() {
 	flag.Parse()
 	config = make(map[string]string)
 	getConfig()
-	fmt.Println(config)
 
 	client, err := mpd.Dial(config["address"] + ":" + config["port"], config["pass"])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Println(client.Status())
+	status, err := client.Status()
+	if status.State == mpd.Playing {
+		song, err := client.Current()
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Printf("Now Playing:\n%s\nby %s\nfrom %s\n", song.S("Title"), song.S("Artist"), song.S("Album"))
+		}
+	}
 
 }
 
