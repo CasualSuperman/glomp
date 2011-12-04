@@ -5,22 +5,27 @@ import (
 	"flag"
 	"fmt"
 	mpd "github.com/jteeuwen/go-pkg-mpd"
+	"log"
+	"log/syslog"
 	"os"
 	"os/user"
 )
 
 var config map[string]string
 var client Conn
+var ErrLogger *log.Logger
+var WarnLogger *log.Logger
 
 func main() {
+	ErrLogger = syslog.NewLogger(syslog.LOG_ERR, log.LstdFlags)
+	WarnLogger = syslog.NewLogger(syslog.LOG_WARNING, log.LstdFlags)
 	flag.Parse()
 	config = make(map[string]string)
 	getConfig()
 
 	c, err := mpd.Dial(config["address"]+":"+config["port"], config["pass"])
 	if err != nil {
-		fmt.Printf("Could not connect to mpd instance on %s:%s\n", config["address"], config["port"])
-		os.Exit(1)
+		log.Fatalf("Could not connect to mpd instance on %s:%s\n", config["address"], config["port"])
 	}
 	client = NewConn(c)
 	status()
@@ -33,11 +38,19 @@ func getConfig() {
 	err := json.Unmarshal([]byte(defaults), &config)
 	if err != nil {
 		fmt.Println("Warning: default settings corrupted", err)
+		ErrLogger.Fatalln("Warning: default settings corrupted", err)
 	}
 
 	file, err := os.Open(conf)
 	if err != nil {
-		fmt.Println("Configuration file could not be found. Continuing with default settings...")
+		WarnLogger.Println("Configuration file could not be found. Creating default.")
+		file, err := os.Create(conf)
+		if err != nil {
+			ErrLogger.Printf("Could not create config file at (%s)", conf)
+		} else {
+			file.WriteString(defaults)
+			file.Close()
+		}
 	}
 	decoder := json.NewDecoder(file)
 	decoder.Decode(&config)
