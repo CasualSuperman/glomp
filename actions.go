@@ -5,13 +5,13 @@ import (
 	mpd "github.com/jteeuwen/go-pkg-mpd"
 )
 
-func status() {
-	client.RLock()
-	defer client.RUnlock()
-	status, _ := client.Status()
+func status(conn int) {
+	client[conn].RLock()
+	defer client[conn].RUnlock()
+	status, _ := client[conn].Status()
 
 	if status.State != mpd.Stopped {
-		song, err := client.Current()
+		song, err := client[conn].Current()
 		if err != nil {
 			fmt.Println(err)
 		} else {
