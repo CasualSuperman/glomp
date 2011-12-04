@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	gtk "github.com/mattn/go-gtk/gtk"
 	mpd "github.com/jteeuwen/go-pkg-mpd"
 	"log"
 	"log/syslog"
@@ -28,7 +29,18 @@ func main() {
 		log.Fatalf("Could not connect to mpd instance on %s:%s\n", config["address"], config["port"])
 	}
 	client = NewConn(c)
-	status()
+	if len(flag.Args()) == 0 {
+		gtk.Init(&os.Args)
+		window := gtk.Window(gtk.GTK_WINDOW_TOPLEVEL)
+		window.SetTitle("glomp")
+		window.Connect("destroy", gtk.MainQuit)
+		window.SetSizeRequest(400, 200)
+		window.ShowAll()
+
+		gtk.Main()
+	} else {
+		status()
+	}
 }
 
 func getConfig() {
