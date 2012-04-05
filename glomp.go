@@ -9,6 +9,7 @@ import (
 	"log/syslog"
 	"os"
 	"os/user"
+	"strconv"
 )
 
 var config map[string]string
@@ -17,8 +18,6 @@ var ErrLogger *log.Logger
 var WarnLogger *log.Logger
 
 func main() {
-	ErrLogger = syslog.NewLogger(syslog.LOG_ERR, log.LstdFlags)
-	WarnLogger = syslog.NewLogger(syslog.LOG_WARNING, log.LstdFlags)
 	client = make([]Conn, 0)
 	flag.Parse()
 	config = make(map[string]string)
@@ -37,7 +36,17 @@ func main() {
 }
 
 func getConfig() {
-	usr, _ := user.LookupId(os.Getuid())
+	uid := os.Getuid()
+
+	if uid == 0 {
+		ErrLogger, _ = syslog.NewLogger(syslog.LOG_ERR, log.LstdFlags)
+		WarnLogger, _ = syslog.NewLogger(syslog.LOG_WARNING, log.LstdFlags)
+	} else {
+		logFile, _ := os.Create("~/.config/glomp.log")
+		ErrLogger = log.New(logFile, "Error", log.LstdFlags)
+		WarnLogger = log.New(logFile, "Warning", log.LstdFlags)
+	}
+	usr, _ := user.LookupId(strconv.Itoa(uid))
 	var conf = usr.HomeDir + "/.config/glomp.conf"
 
 	err := json.Unmarshal([]byte(defaults), &config)
