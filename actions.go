@@ -19,13 +19,23 @@ func action(args []string, conn int) {
 				mp.Pause(false)
 				mp.Unlock()
 
-			case "toggle":
+			case "toggle", "t":
 				mp.Lock()
 				mp.Toggle()
 				mp.Unlock()
 
-			case "status":
+			case "status", "stat", "s":
 				status(conn)
+
+			case "next", "n":
+				mp.Lock()
+				mp.Next()
+				mp.Unlock()
+
+			case "prev", "previous", "p":
+				mp.Lock()
+				mp.Previous()
+				mp.Unlock()
 		}
 	}
 }
