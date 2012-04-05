@@ -1,7 +1,7 @@
 package main
 
 import (
-	gtk "github.com/norisatir/go-gtk3/gtk"
+	gtk "github.com/norisatir/go-gtk3/gtk3"
 )
 
 func showGui(conn int) {
