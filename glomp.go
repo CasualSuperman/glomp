@@ -31,7 +31,7 @@ func main() {
 	if len(flag.Args()) == 0 {
 		showGui(0)
 	} else {
-		status(0)
+		action(os.Args[1:], 0)
 	}
 }
 
@@ -42,7 +42,7 @@ func getConfig() {
 		ErrLogger, _ = syslog.NewLogger(syslog.LOG_ERR, log.LstdFlags)
 		WarnLogger, _ = syslog.NewLogger(syslog.LOG_WARNING, log.LstdFlags)
 	} else {
-		logFile, _ := os.Create("~/.config/glomp.log")
+		logFile := os.Stderr
 		ErrLogger = log.New(logFile, "Error", log.LstdFlags)
 		WarnLogger = log.New(logFile, "Warning", log.LstdFlags)
 	}

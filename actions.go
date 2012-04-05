@@ -5,6 +5,31 @@ import (
 	mpd "github.com/jteeuwen/go-pkg-mpd"
 )
 
+func action(args []string, conn int) {
+	mp := client[conn]
+	if len(args) == 1 {
+		switch args[0] {
+			case "pause":
+				mp.Lock()
+				mp.Pause(true)
+				mp.Unlock()
+
+			case "play":
+				mp.Lock()
+				mp.Pause(false)
+				mp.Unlock()
+
+			case "toggle":
+				mp.Lock()
+				mp.Toggle()
+				mp.Unlock()
+
+			case "status":
+				status(conn)
+		}
+	}
+}
+
 func status(conn int) {
 	client[conn].RLock()
 	defer client[conn].RUnlock()
