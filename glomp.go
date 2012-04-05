@@ -31,7 +31,7 @@ func main() {
 	if len(flag.Args()) == 0 {
 		showGui(0)
 	} else {
-		action(os.Args[1:], 0)
+		action(os.Args[1:], &client[0])
 	}
 }
 

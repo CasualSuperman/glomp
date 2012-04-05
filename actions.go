@@ -5,48 +5,47 @@ import (
 	mpd "github.com/jteeuwen/go-pkg-mpd"
 )
 
-func action(args []string, conn int) {
-	mp := client[conn]
+func action(args []string, conn *Conn) {
 	if len(args) == 1 {
 		switch args[0] {
 			case "pause":
-				mp.Lock()
-				mp.Pause(true)
-				mp.Unlock()
+				conn.Lock()
+				conn.Pause(true)
+				conn.Unlock()
 
 			case "play":
-				mp.Lock()
-				mp.Pause(false)
-				mp.Unlock()
+				conn.Lock()
+				conn.Pause(false)
+				conn.Unlock()
 
 			case "toggle", "t":
-				mp.Lock()
-				mp.Toggle()
-				mp.Unlock()
+				conn.Lock()
+				conn.Toggle()
+				conn.Unlock()
 
 			case "status", "stat", "s":
 				status(conn)
 
 			case "next", "n":
-				mp.Lock()
-				mp.Next()
-				mp.Unlock()
+				conn.Lock()
+				conn.Next()
+				conn.Unlock()
 
 			case "prev", "previous", "p":
-				mp.Lock()
-				mp.Previous()
-				mp.Unlock()
+				conn.Lock()
+				conn.Previous()
+				conn.Unlock()
 		}
 	}
 }
 
-func status(conn int) {
-	client[conn].RLock()
-	defer client[conn].RUnlock()
-	status, _ := client[conn].Status()
+func status(conn *Conn) {
+	conn.RLock()
+	defer conn.RUnlock()
+	status, _ := conn.Status()
 
 	if status.State != mpd.Stopped {
-		song, err := client[conn].Current()
+		song, err := conn.Current()
 		if err != nil {
 			fmt.Println(err)
 		} else {
@@ -65,7 +64,7 @@ func status(conn int) {
 					fmt.Printf(" - %s", artist)
 				}
 				if album != "" {
-					fmt.Printf(" from %s", album)
+					fmt.Printf(" (%s)", album)
 				}
 			}
 
